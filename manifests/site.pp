@@ -7,20 +7,30 @@ class distcc {
 	package { 'build-essential': ensure => "installed" }
 	package { 'kernel-package': ensure => "installed" }
 
-	configfile { "/etc/default/distcc":
-		source => "/etc/puppet/configs/distcc/distcc",
+	file { "distcc":
+		path => "/etc/default/distcc",
+		source => "puppet:///files/distcc/distcc",
 		mode => 644,
-		require => Package["distcc"],
+		owner => root,
+		group => root,
 	}
 
 	service { "distcc":
 		enable => "true",
-		ensure => "running,
+		ensure => "running",
 		notify  => Service["distcc"],
 	}
 }	
 
+class aptupdate {
+	exec { "apt-get update":
+	command => "/usr/bin/apt-get update",
+	onlyif => "/bin/sh -c '[ ! -f /var/cache/apt/pkgcache.bin ] || /usr/bin/find /etc/apt/* -cnewer /var/cache/apt/pkgcache.bin | /bin/grep . > /dev/null'",
+}
+}
+
 # tell puppet on which client to run the class
 node domu-12-31-39-01-5e-1b {
     include distcc
+    include aptupdate
 }
