@@ -17,8 +17,11 @@ class distcc {
 
 	service { "distcc":
 		enable => "true",
-		ensure => "running",
-		notify  => Service["distcc"],
+		ensure => "true",
+		hasstatus => "true",
+		hasrestart => "true",
+		subscribe  => File["/etc/default/distcc"],
+		require => package["distcc"],
 	}
 }	
 
@@ -30,7 +33,8 @@ class aptupdate {
 }
 
 # tell puppet on which client to run the class
-node domu-12-31-39-01-5e-1b {
+node ip-10-28-187-123 {
     include distcc
     include aptupdate
 }
+
